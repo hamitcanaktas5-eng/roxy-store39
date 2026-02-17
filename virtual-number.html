@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sanal Numara - Roxy Store</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{--p:#00D9FF;--s:#A855F7;--g:#00FF88;--dark:#0A0A0F;--d2:#12121A;--d3:#1A1A28;--border:rgba(0,217,255,.12);--muted:#A0A0B8;--err:#FF6584;--warn:#FFB347;}
+body{font-family:'Poppins',sans-serif;background:var(--dark);color:#fff;overflow-x:hidden;}
+.sidebar{position:fixed;left:-280px;top:0;width:270px;height:100vh;background:rgba(26,26,40,.98);backdrop-filter:blur(24px);border-right:1px solid var(--border);z-index:1000;transition:left .3s;display:flex;flex-direction:column;}
+.sidebar.open{left:0;}
+.sb-head{padding:22px 20px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--p),var(--s));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#0A0A0F;}
+.logo-main{font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--p),var(--s));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo-sub{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:2px;display:block;}
+.sb-close{background:transparent;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:6px;}
+.sb-nav{flex:1;overflow-y:auto;padding:12px 0;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:13px 20px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;font-size:14px;font-weight:500;transition:.2s;cursor:pointer;}
+.nav-item:hover,.nav-item.active{background:rgba(0,217,255,.07);color:var(--p);border-left-color:var(--p);}
+.nav-item i{width:20px;font-size:17px;text-align:center;}
+.nav-sep{height:1px;background:rgba(255,255,255,.06);margin:8px 16px;}
+.nav-item.support{color:var(--p);font-weight:700;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;opacity:0;visibility:hidden;transition:.3s;}
+.overlay.active{opacity:1;visibility:visible;}
+.main{min-height:100vh;display:flex;flex-direction:column;}
+.topbar{background:rgba(26,26,40,.98);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:0 24px;height:68px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.tb-left{display:flex;align-items:center;gap:14px;}
+.menu-btn{background:transparent;border:none;color:#fff;font-size:22px;cursor:pointer;padding:8px;}
+.tb-logo-text{font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--p),var(--s));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tb-logo-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;font-weight:600;}
+.tb-right{display:flex;align-items:center;gap:14px;}
+.bal-box{display:flex;align-items:center;gap:10px;padding:9px 14px;background:rgba(0,217,255,.07);border:1.5px solid rgba(0,217,255,.2);border-radius:12px;cursor:pointer;transition:.2s;}
+.bal-box:hover{border-color:var(--p);}
+.bal-box i{color:var(--p);font-size:18px;}
+.bal-label{font-size:10px;color:var(--muted);display:block;text-transform:uppercase;letter-spacing:.5px;}
+.bal-amount{font-size:15px;font-weight:800;color:var(--p);}
+.user-box{display:flex;align-items:center;gap:8px;cursor:pointer;}
+.user-box img{width:38px;height:38px;border-radius:50%;border:2px solid var(--p);}
+.user-box span{font-weight:600;font-size:14px;}
+.content{flex:1;max-width:720px;width:100%;margin:0 auto;padding:36px 24px 60px;}
+.page-hd{margin-bottom:28px;}
+.page-hd h1{font-size:26px;font-weight:900;display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.page-hd h1 i{color:var(--p);}
+.page-hd p{color:var(--muted);}
+.card{background:var(--d3);border:1.5px solid var(--border);border-radius:20px;padding:28px;margin-bottom:18px;}
+.field{margin-bottom:20px;}
+.field:last-child{margin-bottom:0;}
+.field-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.field-label i{color:var(--p);}
+.sel-wrap{position:relative;}
+.sel-input{width:100%;padding:14px 44px 14px 16px;background:var(--d2);border:1.5px solid rgba(255,255,255,.08);border-radius:12px;color:#fff;font-family:'Poppins',sans-serif;font-size:14px;outline:none;cursor:pointer;appearance:none;transition:border .2s;}
+.sel-input:focus{border-color:var(--p);}
+.sel-arrow{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--p);pointer-events:none;font-size:12px;}
+.price-box{display:none;flex-direction:column;align-items:center;gap:8px;padding:28px;background:linear-gradient(135deg,rgba(0,217,255,.1),rgba(168,85,247,.1));border:1.5px solid rgba(0,217,255,.28);border-radius:18px;margin-bottom:18px;text-align:center;}
+.price-box.show{display:flex;}
+.price-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.price-val{font-size:52px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--p),var(--s));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sched{display:none;align-items:flex-start;gap:14px;padding:18px 20px;border-radius:14px;margin-bottom:18px;}
+.sched.show{display:flex;}
+.sched.ok{background:rgba(0,255,136,.07);border:1.5px solid rgba(0,255,136,.25);}
+.sched.off{background:rgba(168,85,247,.07);border:1.5px solid rgba(168,85,247,.25);}
+.sched-ico{font-size:26px;flex-shrink:0;margin-top:1px;}
+.sched.ok .sched-ico{color:var(--g);}
+.sched.off .sched-ico{color:var(--s);}
+.sched h4{font-size:14px;font-weight:700;margin-bottom:4px;}
+.sched p{font-size:13px;color:var(--muted);line-height:1.6;}
+.info-card{display:flex;gap:16px;background:rgba(255,179,71,.07);border:1.5px solid rgba(255,179,71,.25);border-radius:16px;padding:20px;margin-bottom:18px;}
+.info-ico{width:44px;height:44px;background:rgba(255,179,71,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--warn);flex-shrink:0;}
+.info-body h4{color:var(--warn);font-size:15px;margin-bottom:8px;}
+.info-body li{color:var(--muted);font-size:13px;line-height:1.7;margin-left:16px;}
+.btn-buy{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:18px;background:linear-gradient(135deg,var(--p),var(--s));border:none;border-radius:14px;color:#0A0A0F;font-family:'Poppins',sans-serif;font-weight:800;font-size:17px;cursor:pointer;transition:.2s;}
+.btn-buy:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 14px 40px rgba(0,217,255,.4);}
+.btn-buy:disabled{opacity:.35;cursor:not-allowed;}
+footer{background:var(--d3);border-top:1px solid var(--border);padding:22px 24px;margin-top:auto;}
+.foot-in{max-width:720px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.foot-links{display:flex;gap:10px;}
+.foot-link{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;color:#fff;}
+.foot-link.wa{background:#25D366;}.foot-link.tg{background:#0088CC;}
+.foot-copy{color:var(--muted);font-size:13px;}
+@media(max-width:768px){.user-box span,.bal-label{display:none;}.content{padding:20px 14px;}}
+@keyframes _roxyFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <div class="sb-head">
+    <div class="logo"><div class="logo-icon"><i class="fas fa-bolt"></i></div><div><span class="logo-main">ROXY</span><span class="logo-sub">STORE</span></div></div>
+    <button class="sb-close" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
+  </div>
+  <nav class="sb-nav">
+    <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i><span>Ana Sayfa</span></a>
+    <a href="virtual-number.html" class="nav-item active"><i class="fas fa-mobile-alt"></i><span>Sanal Numara</span></a>
+    <a href="social-media.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Sosyal Medya</span></a>
+    <a href="balance.html" class="nav-item"><i class="fas fa-wallet"></i><span>Bakiye Ekle</span></a>
+    <a href="reviews.html" class="nav-item"><i class="fas fa-star"></i><span>Değerlendirmeler</span></a>
+    <div class="nav-sep"></div>
+    <a href="support.html" class="nav-item support"><i class="fas fa-headset"></i><span>Destek</span></a>
+    <a href="profile.html" class="nav-item"><i class="fas fa-user-circle"></i><span>Profil</span></a>
+    <div class="nav-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i><span>Çıkış Yap</span></div>
+  </nav>
+</div>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div><span class="tb-logo-text">ROXY</span> <span class="tb-logo-sub">STORE</span></div>
+    </div>
+    <div class="tb-right">
+      <div class="bal-box" onclick="window.location.href='balance.html'" title="Bakiye Ekle">
+        <i class="fas fa-wallet"></i>
+        <div><span class="bal-label">Bakiye</span><span class="bal-amount" id="balDisplay">0 ₺</span></div>
+      </div>
+      <div class="user-box" onclick="window.location.href='profile.html'">
+        <img id="userAvatar" src="https://ui-avatars.com/api/?name=U&background=00D9FF&color=fff" alt="">
+        <span id="userName">Kullanıcı</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-hd">
+      <h1><i class="fas fa-mobile-alt"></i> Sanal Numara</h1>
+      <p>SMS doğrulama için güvenilir sanal numara hizmeti</p>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <div class="field-label"><i class="fas fa-share-alt"></i> Platform Seç</div>
+        <div class="sel-wrap">
+          <select class="sel-input" id="apiSelect" onchange="updatePrice()">
+            <option value="">— Seçiniz —</option>
+            <option value="whatsapp">📱 WhatsApp</option>
+            <option value="telegram">✈️ Telegram</option>
+            <option value="other">📦 Diğer</option>
+          </select>
+          <i class="fas fa-chevron-down sel-arrow"></i>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label"><i class="fas fa-globe"></i> Ülke / Servis</div>
+        <div class="sel-wrap">
+          <select class="sel-input" id="serviceSelect" onchange="updatePrice()">
+            <option value="">— Seçiniz —</option>
+            <option value="global">🌍 Global</option>
+            <option value="turkey">🇹🇷 Türkiye</option>
+          </select>
+          <i class="fas fa-chevron-down sel-arrow"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="price-box" id="priceBox">
+      <span class="price-lbl">Toplam Ücret</span>
+      <span class="price-val" id="priceVal">0 ₺</span>
+    </div>
+
+    <div class="sched" id="schedCard">
+      <div class="sched-ico" id="schedIco"></div>
+      <div><h4 id="schedTitle"></h4><p id="schedText"></p></div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-ico"><i class="fas fa-info-circle"></i></div>
+      <div class="info-body">
+        <h4>Nasıl Çalışır?</h4>
+        <ul>
+          <li>Bakiyenizden tutar düşülür</li>
+          <li>Sipariş numaranız oluşturulur</li>
+          <li>WhatsApp veya Telegram üzerinden numara iletilir</li>
+          <li>Mesai saatlerinde en geç 30 dakika içinde</li>
+        </ul>
+      </div>
+    </div>
+
+    <button class="btn-buy" id="buyBtn" onclick="handleOrder()" disabled>
+      <i class="fas fa-shopping-cart"></i> Satın Al
+    </button>
+  </div>
+
+  <footer>
+    <div class="foot-in">
+      <div class="foot-links">
+        <a href="https://wa.me/447795203704" target="_blank" class="foot-link wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <a href="https://t.me/roxysatici" target="_blank" class="foot-link tg"><i class="fab fa-telegram"></i> Telegram</a>
+      </div>
+      <span class="foot-copy">© 2026 Roxy Store</span>
+    </div>
+  </footer>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+var _app=firebase.apps.length?firebase.apps[0]:firebase.initializeApp({apiKey:"AIzaSyBf2A1GhEzruI_6lfCNbq4MsbU8hxFjoqI",authDomain:"roxy-store-67c53.firebaseapp.com",projectId:"roxy-store-67c53",storageBucket:"roxy-store-67c53.firebasestorage.app",messagingSenderId:"450502544206",appId:"1:450502544206:web:502d0200dc35ecacfc2c1f"});
+var auth=firebase.auth(),db=firebase.firestore();
+var _user=null,_udata=null;
+
+function formatPrice(n){return Math.round(n||0).toLocaleString('tr-TR')+' ₺';}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('active');}
+function isWorking(){var n=new Date(),d=n.getDay(),h=n.getHours();return d===0||d===6||h>=17;}
+
+// RoxyUI
+var RoxyUI={
+  toast:function(msg,type,dur){dur=dur||3500;var c={success:'#00FF88',error:'#FF6584',warning:'#FFB347',info:'#00D9FF'};var ic={success:'check-circle',error:'times-circle',warning:'exclamation-triangle',info:'info-circle'};var w=document.getElementById('_rt');if(!w){w=document.createElement('div');w.id='_rt';w.style.cssText='position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:360px;';document.body.appendChild(w);}var t=document.createElement('div');t.style.cssText='display:flex;align-items:center;gap:12px;padding:14px 18px;background:#1F1F2E;border:1.5px solid '+(c[type]||c.info)+';border-radius:14px;font-family:Poppins,sans-serif;font-size:14px;color:#fff;box-shadow:0 8px 32px rgba(0,0,0,.5);';t.innerHTML='<i class="fas fa-'+(ic[type]||'info-circle')+'" style="color:'+(c[type]||c.info)+';font-size:18px;flex-shrink:0"></i><span>'+msg+'</span>';w.appendChild(t);setTimeout(function(){t.style.transition='.3s';t.style.opacity='0';t.style.transform='translateY(8px)';setTimeout(function(){t.remove();},300);},dur);},
+  alert:function(title,msg,type){return new Promise(function(resolve){var ic={success:'check-circle',error:'times-circle',warning:'exclamation-triangle',info:'info-circle'};var c={success:'#00FF88',error:'#FF6584',warning:'#FFB347',info:'#00D9FF'};var ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99998;display:flex;align-items:center;justify-content:center;padding:16px;';ov.innerHTML='<div style="background:#1A1A28;border:1.5px solid rgba(0,217,255,.2);border-radius:20px;padding:36px 30px;max-width:420px;width:100%;text-align:center;font-family:Poppins,sans-serif;"><i class="fas fa-'+(ic[type||'info']||'info-circle')+'" style="font-size:48px;color:'+(c[type||'info']||c.info)+';display:block;margin-bottom:14px;"></i><div style="font-size:19px;font-weight:800;margin-bottom:10px;">'+title+'</div><div style="font-size:14px;color:#A0A0B8;line-height:1.7;margin-bottom:26px;">'+msg+'</div><button id="_rOk" style="padding:13px 40px;background:linear-gradient(135deg,#00D9FF,#A855F7);border:none;border-radius:12px;color:#0A0A0F;font-weight:800;font-size:15px;cursor:pointer;font-family:Poppins,sans-serif;">Tamam</button></div>';document.body.appendChild(ov);ov.querySelector('#_rOk').onclick=function(){ov.remove();resolve();};});},
+  confirm:function(title,msg,ok,cancel,danger){return new Promise(function(resolve){var ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99998;display:flex;align-items:center;justify-content:center;padding:16px;';ov.innerHTML='<div style="background:#1A1A28;border:1.5px solid rgba(0,217,255,.2);border-radius:20px;padding:36px 30px;max-width:420px;width:100%;text-align:center;font-family:Poppins,sans-serif;"><i class="fas fa-question-circle" style="font-size:48px;color:#00D9FF;display:block;margin-bottom:14px;"></i><div style="font-size:19px;font-weight:800;margin-bottom:10px;">'+title+'</div><div style="font-size:14px;color:#A0A0B8;line-height:1.7;margin-bottom:26px;">'+msg+'</div><div style="display:flex;gap:12px;justify-content:center;"><button id="_rC" style="padding:12px 24px;background:transparent;border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:#A0A0B8;font-weight:700;cursor:pointer;font-family:Poppins,sans-serif;">'+(cancel||'İptal')+'</button><button id="_rO" style="padding:12px 24px;background:'+(danger?'linear-gradient(135deg,#FF6584,#c0392b)':'linear-gradient(135deg,#00D9FF,#A855F7)')+';border:none;border-radius:12px;color:#0A0A0F;font-weight:800;cursor:pointer;font-family:Poppins,sans-serif;">'+(ok||'Onayla')+'</button></div></div>';document.body.appendChild(ov);ov.querySelector('#_rO').onclick=function(){ov.remove();resolve(true);};ov.querySelector('#_rC').onclick=function(){ov.remove();resolve(false);};});}
+};
+
+function handleLogout(){RoxyUI.confirm('Çıkış Yap','Hesabınızdan çıkış yapmak istiyor musunuz?','Çıkış Yap','İptal',true).then(function(ok){if(ok)auth.signOut().then(function(){window.location.href='auth.html';});});}
+
+var PRICES={whatsapp:{global:45,turkey:85},telegram:{global:45,turkey:85},other:{global:45,turkey:85}};
+
+var _unsub=auth.onAuthStateChanged(function(user){
+  _unsub();
+  if(!user){window.location.href='auth.html';return;}
+  _user=user;
+  db.collection('users').doc(user.uid).get().then(function(s){
+    _udata=s.exists?s.data():{balance:0};
+    var name=_udata.name||user.displayName||'Kullanıcı';
+    document.getElementById('balDisplay').textContent=formatPrice(_udata.balance||0);
+    document.getElementById('userAvatar').src='https://ui-avatars.com/api/?name='+encodeURIComponent(name)+'&background=00D9FF&color=fff';
+    document.getElementById('userName').textContent=name;
+  });
+});
+
+function updatePrice(){
+  var api=document.getElementById('apiSelect').value;
+  var svc=document.getElementById('serviceSelect').value;
+  var box=document.getElementById('priceBox');
+  var val=document.getElementById('priceVal');
+  var btn=document.getElementById('buyBtn');
+  var sc =document.getElementById('schedCard');
+
+  if(!api||!svc){
+    box.classList.remove('show');
+    sc.className='sched';
+    btn.disabled=true;
+    return;
+  }
+  var price=(PRICES[api]&&PRICES[api][svc])?PRICES[api][svc]:45;
+  val.textContent=formatPrice(price);
+  box.classList.add('show');
+  btn.disabled=false;
+
+  var w=isWorking();
+  sc.className='sched show '+(w?'ok':'off');
+  document.getElementById('schedIco').innerHTML=w?'<i class="fas fa-check-circle"></i>':'<i class="fas fa-moon"></i>';
+  document.getElementById('schedTitle').textContent=w?'Mesai Saatlerindeyiz ✓':'Mesai Saati Dışı';
+  document.getElementById('schedText').innerHTML=w
+    ?'Siparişiniz en geç <strong>30 dakika</strong> içinde iletilecektir.'
+    :'Siparişiniz alınacak, mesai saatinde işlenecektir.<br><strong>Hafta içi:</strong> 17:00–00:00 &nbsp;|&nbsp; <strong>Hafta sonu:</strong> 7/24';
+}
+
+function genVNId(){var d=new Date(),p=function(n){return String(n).padStart(2,'0');},dt=p(d.getDate())+p(d.getMonth()+1)+d.getFullYear(),c='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',r='';for(var i=0;i<4;i++)r+=c[Math.floor(Math.random()*c.length)];return 'VN-'+dt+'-'+r;}
+
+function handleOrder(){
+  var api=document.getElementById('apiSelect').value;
+  var svc=document.getElementById('serviceSelect').value;
+  if(!api||!svc)return;
+
+  var price=(PRICES[api]&&PRICES[api][svc])?PRICES[api][svc]:45;
+  var bal=_udata?(_udata.balance||0):0;
+  if(bal<price){
+    RoxyUI.alert('Yetersiz Bakiye',
+      'Gerekli: <strong>'+formatPrice(price)+'</strong><br>Mevcut bakiyeniz: <strong>'+formatPrice(bal)+'</strong>',
+      'warning').then(function(){window.location.href='balance.html';});
+    return;
+  }
+
+  var platMap={whatsapp:'WhatsApp',telegram:'Telegram',other:'Diğer'};
+  var svcMap={global:'🌍 Global',turkey:'🇹🇷 Türkiye'};
+  var oid=genVNId();
+
+  RoxyUI.confirm(
+    'Sipariş Özeti',
+    '<strong>Platform:</strong> '+platMap[api]+'<br>'
+    +'<strong>Servis:</strong> '+svcMap[svc]+'<br>'
+    +'<strong>Tutar:</strong> '+formatPrice(price)+'<br>'
+    +'<strong>Sipariş No:</strong> <span style="color:#00D9FF;font-weight:700;">'+oid+'</span>',
+    'Onayla', 'İptal'
+  ).then(function(ok){
+    if(!ok)return;
+    var nb=bal-price;
+    var btn=document.getElementById('buyBtn');
+    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> İşleniyor...';
+
+    db.collection('orders').doc(oid).set({
+      orderId:oid,type:'vn',userId:_user.uid,userEmail:_user.email,
+      userName:(_udata&&_udata.name)?_udata.name:'',
+      platform:platMap[api],service:svcMap[svc],price:price,
+      status:'pending',note:'',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      return db.collection('users').doc(_user.uid).update({balance:nb});
+    }).then(function(){
+      _udata.balance=nb;
+      document.getElementById('balDisplay').textContent=formatPrice(nb);
+      RoxyUI.toast('✅ Siparişiniz alındı! No: '+oid,'success',6000);
+      // Formu sıfırla
+      document.getElementById('apiSelect').value='';
+      document.getElementById('serviceSelect').value='';
+      document.getElementById('priceBox').classList.remove('show');
+      document.getElementById('schedCard').className='sched';
+      btn.innerHTML='<i class="fas fa-shopping-cart"></i> Satın Al';
+      btn.disabled=true;
+    }).catch(function(e){
+      btn.disabled=false; btn.innerHTML='<i class="fas fa-shopping-cart"></i> Satın Al';
+      RoxyUI.alert('Hata','Sipariş oluşturulamadı: '+e.message,'error');
+    });
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Panel - Roxy Store</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{--p:#00D9FF;--s:#A855F7;--g:#00FF88;--dark:#0A0A0F;--d2:#12121A;--d3:#1A1A28;--border:rgba(0,217,255,.12);--muted:#A0A0B8;--err:#FF6584;--warn:#FFB347;}
+body{font-family:'Poppins',sans-serif;background:var(--dark);color:#fff;overflow-x:hidden;}
+/* LOGIN */
+#loginView{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--dark);}
+.login-card{background:var(--d3);border:1.5px solid var(--border);border-radius:24px;padding:44px 36px;max-width:400px;width:100%;text-align:center;}
+.admin-logo{width:64px;height:64px;background:linear-gradient(135deg,var(--p),var(--s));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#0A0A0F;margin:0 auto 20px;}
+.login-title{font-size:22px;font-weight:800;margin-bottom:6px;}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:28px;}
+.inp{width:100%;padding:14px 16px;background:var(--d2);border:1.5px solid rgba(255,255,255,.08);border-radius:12px;color:#fff;font-family:'Poppins',sans-serif;font-size:14px;outline:none;margin-bottom:12px;transition:border .2s;}
+.inp:focus{border-color:var(--p);}
+.btn-login{width:100%;padding:15px;background:linear-gradient(135deg,var(--p),var(--s));border:none;border-radius:13px;color:#0A0A0F;font-family:'Poppins',sans-serif;font-weight:800;font-size:16px;cursor:pointer;transition:.2s;margin-top:4px;}
+.btn-login:hover{opacity:.9;}
+.login-err{background:rgba(255,101,132,.1);border:1px solid rgba(255,101,132,.3);border-radius:10px;padding:10px;font-size:13px;color:var(--err);margin-bottom:12px;display:none;}
+/* PANEL */
+#panelView{display:none;}
+.topbar{background:rgba(26,26,40,.98);border-bottom:1px solid var(--border);padding:0 24px;height:68px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo-text{font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--p),var(--s));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.admin-badge{padding:6px 12px;background:rgba(0,217,255,.1);border:1px solid rgba(0,217,255,.25);border-radius:8px;font-size:12px;color:var(--p);font-weight:700;}
+.btn-logout{padding:8px 14px;background:rgba(255,101,132,.1);border:1px solid rgba(255,101,132,.2);border-radius:8px;color:var(--err);font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;}
+.btn-logout:hover{background:rgba(255,101,132,.2);}
+/* TABS */
+.tabs{display:flex;gap:4px;padding:18px 24px 0;border-bottom:1px solid var(--border);}
+.tab{padding:12px 18px;background:transparent;border:none;border-bottom:3px solid transparent;color:var(--muted);font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:8px;margin-bottom:-1px;}
+.tab:hover{color:#fff;}
+.tab.active{color:var(--p);border-bottom-color:var(--p);}
+.tab-badge{background:var(--p);color:#0A0A0F;font-size:10px;font-weight:800;padding:2px 6px;border-radius:10px;}
+/* CONTENT */
+.panel-content{padding:24px;max-width:1200px;margin:0 auto;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--d3);border:1.5px solid var(--border);border-radius:16px;padding:20px;}
+.stat-ico{font-size:28px;margin-bottom:10px;}
+.stat-lbl{font-size:12px;color:var(--muted);display:block;margin-bottom:6px;}
+.stat-val{font-size:24px;font-weight:900;}
+/* TABLE */
+.tbl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.tbl-header h3{font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.tbl-header h3 i{color:var(--p);}
+.tbl-wrap{background:var(--d3);border:1.5px solid var(--border);border-radius:16px;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:600px;}
+th{padding:13px 16px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid rgba(255,255,255,.05);}
+td{padding:13px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.b-pending{background:rgba(255,179,71,.15);color:var(--warn);}
+.b-processing{background:rgba(0,217,255,.15);color:var(--p);}
+.b-completed,.b-approved{background:rgba(0,255,136,.15);color:var(--g);}
+.b-cancelled,.b-rejected{background:rgba(255,101,132,.15);color:var(--err);}
+.b-open{background:rgba(0,255,136,.15);color:var(--g);}
+.b-closed{background:rgba(255,255,255,.08);color:var(--muted);}
+.b-replied{background:rgba(168,85,247,.15);color:var(--s);}
+/* ACTION BTNS */
+.act-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.act-btn{padding:5px 10px;border:none;border-radius:7px;font-family:'Poppins',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:.2s;}
+.ab-ok{background:rgba(0,255,136,.15);color:var(--g);}
+.ab-ok:hover{background:rgba(0,255,136,.25);}
+.ab-deny{background:rgba(255,101,132,.15);color:var(--err);}
+.ab-deny:hover{background:rgba(255,101,132,.25);}
+.ab-complete{background:rgba(0,217,255,.15);color:var(--p);}
+.ab-complete:hover{background:rgba(0,217,255,.25);}
+.ab-close{background:rgba(255,255,255,.07);color:var(--muted);}
+.ab-close:hover{background:rgba(255,255,255,.12);}
+.empty-row td{text-align:center;padding:40px;color:var(--muted);}
+.refresh-btn{padding:8px 14px;background:rgba(0,217,255,.1);border:1px solid rgba(0,217,255,.2);border-radius:8px;color:var(--p);font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;}
+.refresh-btn:hover{background:rgba(0,217,255,.18);}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginView">
+  <div class="login-card">
+    <div class="admin-logo"><i class="fas fa-shield-alt"></i></div>
+    <div class="login-title">Admin Paneli</div>
+    <div class="login-sub">Roxy Store Yönetim Sistemi</div>
+    <div class="login-err" id="loginErr">❌ E-posta veya şifre hatalı.</div>
+    <input type="email" class="inp" id="adminEmail" placeholder="Admin e-posta">
+    <input type="password" class="inp" id="adminPw" placeholder="Şifre">
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">Giriş Yap</button>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div id="panelView">
+  <div class="topbar">
+    <div><span class="logo-text">ROXY</span> <span style="font-size:10px;color:var(--muted);letter-spacing:1.5px;font-weight:600;">ADMIN</span></div>
+    <div class="topbar-right">
+      <span class="admin-badge"><i class="fas fa-shield-alt"></i> Admin</span>
+      <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Çıkış</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
+    <button class="tab" onclick="switchTab('orders')"><i class="fas fa-box"></i> Siparişler <span class="tab-badge" id="pendOrderBadge">0</span></button>
+    <button class="tab" onclick="switchTab('balance')"><i class="fas fa-wallet"></i> Bakiye <span class="tab-badge" id="pendBalBadge">0</span></button>
+    <button class="tab" onclick="switchTab('support')"><i class="fas fa-headset"></i> Destek <span class="tab-badge" id="openTktBadge">0</span></button>
+    <button class="tab" onclick="switchTab('reviews')"><i class="fas fa-star"></i> Yorumlar <span class="tab-badge" id="pendRevBadge">0</span></button>
+    <button class="tab" onclick="switchTab('users')"><i class="fas fa-users"></i> Kullanıcılar</button>
+  </div>
+
+  <div class="panel-content">
+    <!-- DASHBOARD -->
+    <div class="tab-panel show" id="tab-dashboard">
+      <div class="stats">
+        <div class="stat-card"><div class="stat-ico">📦</div><span class="stat-lbl">Toplam Sipariş</span><div class="stat-val" id="sTotal">—</div></div>
+        <div class="stat-card"><div class="stat-ico">⏳</div><span class="stat-lbl">Bekleyen Sipariş</span><div class="stat-val" id="sPend">—</div></div>
+        <div class="stat-card"><div class="stat-ico">💰</div><span class="stat-lbl">Bakiye Talebi</span><div class="stat-val" id="sBal">—</div></div>
+        <div class="stat-card"><div class="stat-ico">🎫</div><span class="stat-lbl">Açık Destek</span><div class="stat-val" id="sTkt">—</div></div>
+        <div class="stat-card"><div class="stat-ico">⭐</div><span class="stat-lbl">Bekleyen Yorum</span><div class="stat-val" id="sRev">—</div></div>
+        <div class="stat-card"><div class="stat-ico">👥</div><span class="stat-lbl">Toplam Kullanıcı</span><div class="stat-val" id="sUsers">—</div></div>
+      </div>
+    </div>
+
+    <!-- SİPARİŞLER -->
+    <div class="tab-panel" id="tab-orders">
+      <div class="tbl-header">
+        <h3><i class="fas fa-box"></i> Siparişler</h3>
+        <button class="refresh-btn" onclick="loadOrders()"><i class="fas fa-sync"></i> Yenile</button>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Sipariş No</th><th>Kullanıcı</th><th>Platform</th><th>Servis</th><th>Tutar</th><th>Durum</th><th>Tarih</th><th>İşlem</th></tr></thead>
+        <tbody id="ordersTbody"><tr class="empty-row"><td colspan="8"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- BAKİYE -->
+    <div class="tab-panel" id="tab-balance">
+      <div class="tbl-header">
+        <h3><i class="fas fa-wallet"></i> Bakiye Talepleri</h3>
+        <button class="refresh-btn" onclick="loadBalRequests()"><i class="fas fa-sync"></i> Yenile</button>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Talep No</th><th>Kullanıcı</th><th>Tutar</th><th>İşlem No</th><th>Durum</th><th>Tarih</th><th>İşlem</th></tr></thead>
+        <tbody id="balTbody"><tr class="empty-row"><td colspan="7"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- DESTEK -->
+    <div class="tab-panel" id="tab-support">
+      <div class="tbl-header">
+        <h3><i class="fas fa-headset"></i> Destek Talepleri</h3>
+        <button class="refresh-btn" onclick="loadTickets()"><i class="fas fa-sync"></i> Yenile</button>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Talep No</th><th>Kullanıcı</th><th>Başlık</th><th>Kategori</th><th>Durum</th><th>Tarih</th><th>İşlem</th></tr></thead>
+        <tbody id="tktTbody"><tr class="empty-row"><td colspan="7"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- YORUMLAR -->
+    <div class="tab-panel" id="tab-reviews">
+      <div class="tbl-header">
+        <h3><i class="fas fa-star"></i> Değerlendirmeler</h3>
+        <button class="refresh-btn" onclick="loadReviews()"><i class="fas fa-sync"></i> Yenile</button>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Kullanıcı</th><th>Puan</th><th>Yorum</th><th>Durum</th><th>Tarih</th><th>İşlem</th></tr></thead>
+        <tbody id="revTbody"><tr class="empty-row"><td colspan="6"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- KULLANICILAR -->
+    <div class="tab-panel" id="tab-users">
+      <div class="tbl-header">
+        <h3><i class="fas fa-users"></i> Kullanıcılar</h3>
+        <button class="refresh-btn" onclick="loadUsers()"><i class="fas fa-sync"></i> Yenile</button>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Ad Soyad</th><th>E-posta</th><th>Bakiye</th><th>Kayıt Tarihi</th><th>İşlem</th></tr></thead>
+        <tbody id="usersTbody"><tr class="empty-row"><td colspan="5"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+var _app=firebase.apps.length?firebase.apps[0]:firebase.initializeApp({apiKey:"AIzaSyBf2A1GhEzruI_6lfCNbq4MsbU8hxFjoqI",authDomain:"roxy-store-67c53.firebaseapp.com",projectId:"roxy-store-67c53",storageBucket:"roxy-store-67c53.firebasestorage.app",messagingSenderId:"450502544206",appId:"1:450502544206:web:502d0200dc35ecacfc2c1f"});
+var auth=firebase.auth(),db=firebase.firestore();
+var ADMIN_EMAIL='admin@roxystore.com';
+
+function formatPrice(n){return Math.round(n||0).toLocaleString('tr-TR')+' ₺';}
+function fmtDate(ts){if(!ts)return '—';var d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('tr-TR');}
+
+function toast(msg,type){
+  var c={success:'#00FF88',error:'#FF6584',warning:'#FFB347',info:'#00D9FF'};
+  var w=document.getElementById('_at');if(!w){w=document.createElement('div');w.id='_at';w.style.cssText='position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:10px;';document.body.appendChild(w);}
+  var t=document.createElement('div');t.style.cssText='padding:13px 18px;background:#1F1F2E;border:1.5px solid '+(c[type]||c.info)+';border-radius:12px;font-size:13px;color:#fff;font-family:Poppins,sans-serif;';t.textContent=msg;w.appendChild(t);
+  setTimeout(function(){t.style.opacity='0';t.style.transition='.3s';setTimeout(function(){t.remove();},300);},3500);
+}
+
+// AUTH
+var _unsub=auth.onAuthStateChanged(function(user){
+  _unsub();
+  if(user&&user.email===ADMIN_EMAIL){
+    document.getElementById('loginView').style.display='none';
+    document.getElementById('panelView').style.display='block';
+    loadDashboard();
+  }
+});
+
+function doLogin(){
+  var email=document.getElementById('adminEmail').value.trim();
+  var pw=document.getElementById('adminPw').value;
+  var btn=document.getElementById('btnLogin');
+  document.getElementById('loginErr').style.display='none';
+  btn.disabled=true;btn.textContent='Giriş yapılıyor...';
+  auth.signInWithEmailAndPassword(email,pw)
+    .then(function(cred){
+      if(cred.user.email!==ADMIN_EMAIL){
+        auth.signOut();
+        document.getElementById('loginErr').textContent='❌ Bu hesabın admin yetkisi yok.';
+        document.getElementById('loginErr').style.display='block';
+        btn.disabled=false;btn.textContent='Giriş Yap';return;
+      }
+      document.getElementById('loginView').style.display='none';
+      document.getElementById('panelView').style.display='block';
+      loadDashboard();
+    }).catch(function(){
+      document.getElementById('loginErr').style.display='block';
+      btn.disabled=false;btn.textContent='Giriş Yap';
+    });
+}
+function doLogout(){auth.signOut().then(function(){location.reload();});}
+
+// TABS
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',t.getAttribute('onclick').includes(name));});
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('show');});
+  document.getElementById('tab-'+name).classList.add('show');
+  if(name==='orders')loadOrders();
+  if(name==='balance')loadBalRequests();
+  if(name==='support')loadTickets();
+  if(name==='reviews')loadReviews();
+  if(name==='users')loadUsers();
+}
+
+function loadDashboard(){
+  Promise.all([
+    db.collection('orders').get(),
+    db.collection('balance_requests').where('status','==','pending').get(),
+    db.collection('tickets').where('status','==','open').get(),
+    db.collection('reviews').where('status','==','pending').get(),
+    db.collection('users').get()
+  ]).then(function(res){
+    var orders=res[0],balPend=res[1],tkts=res[2],revs=res[3],users=res[4];
+    var pend=0; orders.forEach(function(d){if(d.data().status==='pending'||d.data().status==='processing')pend++;});
+    document.getElementById('sTotal').textContent=orders.size;
+    document.getElementById('sPend').textContent=pend;
+    document.getElementById('sBal').textContent=balPend.size;
+    document.getElementById('sTkt').textContent=tkts.size;
+    document.getElementById('sRev').textContent=revs.size;
+    document.getElementById('sUsers').textContent=users.size;
+    document.getElementById('pendOrderBadge').textContent=pend;
+    document.getElementById('pendBalBadge').textContent=balPend.size;
+    document.getElementById('openTktBadge').textContent=tkts.size;
+    document.getElementById('pendRevBadge').textContent=revs.size;
+  });
+}
+
+// SİPARİŞLER
+function loadOrders(){
+  var tb=document.getElementById('ordersTbody');
+  tb.innerHTML='<tr class="empty-row"><td colspan="8"><i class="fas fa-spinner fa-spin"></i></td></tr>';
+  db.collection('orders').limit(100).get().then(function(snap){
+    var docs=[]; snap.forEach(function(d){docs.push(d);});
+    docs.sort(function(a,b){var ta=a.data().createdAt;var tb=b.data().createdAt;if(!ta||!tb)return 0;return (tb.seconds||0)-(ta.seconds||0);});
+    if(!docs.length){tb.innerHTML='<tr class="empty-row"><td colspan="8">Henüz sipariş yok</td></tr>';return;}
+    var html='';
+    docs.forEach(function(d){
+      var o=d.data(),dt=fmtDate(o.createdAt);
+      var bMap={pending:'b-pending',processing:'b-processing',completed:'b-completed',cancelled:'b-cancelled'};
+      var bLbl={pending:'⏳ Beklemede',processing:'⚙️ İşleniyor',completed:'✅ Tamamlandı',cancelled:'❌ İptal'};
+      html+='<tr>'
+        +'<td><strong>'+o.orderId+'</strong></td>'
+        +'<td>'+o.userName+'<br><span style="font-size:11px;color:var(--muted)">'+o.userEmail+'</span></td>'
+        +'<td>'+o.platform+'</td>'
+        +'<td>'+o.service+(o.amount?'<br><span style="font-size:11px;color:var(--muted)">'+o.amount.toLocaleString('tr-TR')+'</span>':'')+'</td>'
+        +'<td><strong>'+formatPrice(o.price)+'</strong></td>'
+        +'<td><span class="badge '+(bMap[o.status]||'b-pending')+'">'+(bLbl[o.status]||o.status)+'</span></td>'
+        +'<td>'+dt+'</td>'
+        +'<td><div class="act-btns">'
+        +(o.status==='pending'||o.status==='processing'?'<button class="act-btn ab-complete" onclick="updateOrder(\''+d.id+'\',\'completed\')">✅ Tamamla</button><button class="act-btn ab-deny" onclick="updateOrder(\''+d.id+'\',\'cancelled\')">❌ İptal</button>':'')
+        +'</div></td>'
+        +'</tr>';
+    });
+    tb.innerHTML=html;
+  });
+}
+function updateOrder(id,status){
+  db.collection('orders').doc(id).update({status:status}).then(function(){toast('✅ Güncellendi!','success');loadOrders();});
+}
+
+// BAKİYE
+function loadBalRequests(){
+  var tb=document.getElementById('balTbody');
+  tb.innerHTML='<tr class="empty-row"><td colspan="7"><i class="fas fa-spinner fa-spin"></i></td></tr>';
+  db.collection('balance_requests').limit(100).get().then(function(snap){
+    var docs=[]; snap.forEach(function(d){docs.push(d);});
+    docs.sort(function(a,b){var ta=a.data().createdAt;var tb=b.data().createdAt;if(!ta||!tb)return 0;return (tb.seconds||0)-(ta.seconds||0);});
+    if(!docs.length){tb.innerHTML='<tr class="empty-row"><td colspan="7">Henüz talep yok</td></tr>';return;}
+    var html='';
+    docs.forEach(function(d){
+      var r=d.data(),dt=fmtDate(r.createdAt);
+      var bMap={pending:'b-pending',approved:'b-approved',rejected:'b-rejected'};
+      var bLbl={pending:'⏳ Beklemede',approved:'✅ Onaylandı',rejected:'❌ Reddedildi'};
+      html+='<tr>'
+        +'<td>'+r.requestId+'</td>'
+        +'<td>'+r.userName+'<br><span style="font-size:11px;color:var(--muted)">'+r.userEmail+'</span></td>'
+        +'<td><strong>'+formatPrice(r.amount)+'</strong></td>'
+        +'<td>'+r.transactionId+'</td>'
+        +'<td><span class="badge '+(bMap[r.status]||'b-pending')+'">'+(bLbl[r.status]||r.status)+'</span></td>'
+        +'<td>'+dt+'</td>'
+        +'<td><div class="act-btns">'
+        +(r.status==='pending'?
+          '<button class="act-btn ab-ok" onclick="approveBalance(\''+d.id+'\',\''+r.userId+'\','+r.amount+')">✅ Onayla</button>'
+          +'<button class="act-btn ab-deny" onclick="rejectBalance(\''+d.id+'\')">❌ Reddet</button>':'')
+        +'</div></td>'
+        +'</tr>';
+    });
+    tb.innerHTML=html;
+  });
+}
+function approveBalance(reqId,userId,amount){
+  db.collection('users').doc(userId).get().then(function(s){
+    var curBal=(s.exists?s.data().balance:0)||0;
+    return db.collection('users').doc(userId).update({balance:curBal+amount})
+      .then(function(){return db.collection('balance_requests').doc(reqId).update({status:'approved'});});
+  }).then(function(){toast('✅ Bakiye yüklendi!','success');loadBalRequests();loadDashboard();})
+  .catch(function(e){toast('Hata: '+e.message,'error');});
+}
+function rejectBalance(reqId){
+  db.collection('balance_requests').doc(reqId).update({status:'rejected'})
+    .then(function(){toast('Talep reddedildi.','warning');loadBalRequests();loadDashboard();});
+}
+
+// DESTEK
+function loadTickets(){
+  var tb=document.getElementById('tktTbody');
+  tb.innerHTML='<tr class="empty-row"><td colspan="7"><i class="fas fa-spinner fa-spin"></i></td></tr>';
+  db.collection('tickets').limit(100).get().then(function(snap){
+    var docs=[]; snap.forEach(function(d){docs.push(d);});
+    docs.sort(function(a,b){var ta=a.data().createdAt;var tb=b.data().createdAt;if(!ta||!tb)return 0;return (tb.seconds||0)-(ta.seconds||0);});
+    if(!docs.length){tb.innerHTML='<tr class="empty-row"><td colspan="7">Henüz destek talebi yok</td></tr>';return;}
+    var html='';
+    docs.forEach(function(d){
+      var t=d.data(),dt=fmtDate(t.createdAt);
+      var isOpen=t.status==='open';
+      html+='<tr>'
+        +'<td><strong>'+t.ticketId+'</strong></td>'
+        +'<td>'+t.userName+'<br><span style="font-size:11px;color:var(--muted)">'+t.userEmail+'</span></td>'
+        +'<td>'+t.title+'</td>'
+        +'<td>'+t.category+'</td>'
+        +'<td><span class="badge '+(isOpen?'b-open':'b-closed')+'">'+(isOpen?'✅ Açık':'🔒 Kapalı')+'</span></td>'
+        +'<td>'+dt+'</td>'
+        +'<td><div class="act-btns">'
+        +(isOpen?'<button class="act-btn ab-close" onclick="closeTicket(\''+d.id+'\')">🔒 Kapat</button>':'')
+        +'<button class="act-btn ab-ok" onclick="replyTicket(\''+d.id+'\')">💬 Yanıtla</button>'
+        +'</div></td>'
+        +'</tr>';
+    });
+    tb.innerHTML=html;
+  });
+}
+function closeTicket(id){db.collection('tickets').doc(id).update({status:'closed'}).then(function(){toast('Talep kapatıldı.','success');loadTickets();loadDashboard();});}
+function replyTicket(id){
+  var msg=window.prompt('Yanıtınızı yazın:');
+  if(!msg)return;
+  var reply={sender:'admin',text:msg,timestamp:new Date().toISOString()};
+  db.collection('tickets').doc(id).update({messages:firebase.firestore.FieldValue.arrayUnion(reply)})
+    .then(function(){toast('✅ Yanıt gönderildi!','success');loadTickets();});
+}
+
+// YORUMLAR
+function loadReviews(){
+  var tb=document.getElementById('revTbody');
+  tb.innerHTML='<tr class="empty-row"><td colspan="6"><i class="fas fa-spinner fa-spin"></i></td></tr>';
+  db.collection('reviews').limit(100).get().then(function(snap){
+    var docs=[]; snap.forEach(function(d){docs.push(d);});
+    docs.sort(function(a,b){var ta=a.data().createdAt;var tb=b.data().createdAt;if(!ta||!tb)return 0;return (tb.seconds||0)-(ta.seconds||0);});
+    if(!docs.length){tb.innerHTML='<tr class="empty-row"><td colspan="6">Yorum yok</td></tr>';return;}
+    var html='';
+    docs.forEach(function(d){
+      var r=d.data(),dt=fmtDate(r.createdAt);
+      var stars='';for(var i=1;i<=5;i++)stars+='<i class="fas fa-star" style="color:'+(i<=r.rating?'#FFB800':'rgba(255,255,255,.2)')+'"></i>';
+      var bMap={pending:'b-pending',approved:'b-approved',replied:'b-replied',rejected:'b-rejected'};
+      var bLbl={pending:'⏳ Beklemede',approved:'✅ Onaylı',replied:'💬 Yanıtlandı',rejected:'❌ Reddedildi'};
+      html+='<tr>'
+        +'<td>'+r.userName+'</td>'
+        +'<td>'+stars+'</td>'
+        +'<td style="max-width:250px;white-space:normal">'+r.text.substring(0,80)+(r.text.length>80?'...':'')+'</td>'
+        +'<td><span class="badge '+(bMap[r.status]||'b-pending')+'">'+(bLbl[r.status]||r.status)+'</span></td>'
+        +'<td>'+dt+'</td>'
+        +'<td><div class="act-btns">'
+        +(r.status==='pending'?'<button class="act-btn ab-ok" onclick="approveRev(\''+d.id+'\')">✅ Onayla</button><button class="act-btn ab-deny" onclick="rejectRev(\''+d.id+'\')">❌ Reddet</button>':'')
+        +'<button class="act-btn ab-ok" onclick="replyRev(\''+d.id+'\')">💬 Yanıtla</button>'
+        +'</div></td>'
+        +'</tr>';
+    });
+    tb.innerHTML=html;
+  });
+}
+function approveRev(id){db.collection('reviews').doc(id).update({status:'approved'}).then(function(){toast('✅ Onaylandı!','success');loadReviews();loadDashboard();});}
+function rejectRev(id){db.collection('reviews').doc(id).update({status:'rejected'}).then(function(){toast('Reddedildi.','warning');loadReviews();loadDashboard();});}
+function replyRev(id){
+  var msg=window.prompt('Yanıtınızı yazın:');if(!msg)return;
+  db.collection('reviews').doc(id).update({status:'replied',reply:msg}).then(function(){toast('✅ Yanıt eklendi!','success');loadReviews();});
+}
+
+// KULLANICILAR
+function loadUsers(){
+  var tb=document.getElementById('usersTbody');
+  tb.innerHTML='<tr class="empty-row"><td colspan="5"><i class="fas fa-spinner fa-spin"></i></td></tr>';
+  db.collection('users').get().then(function(snap){
+    var docs=[]; snap.forEach(function(d){docs.push(d);});
+    if(!docs.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Kullanıcı yok</td></tr>';return;}
+    var html='';
+    docs.forEach(function(d){
+      var u=d.data(),dt=fmtDate(u.createdAt);
+      html+='<tr>'
+        +'<td><strong>'+u.name+'</strong></td>'
+        +'<td>'+u.email+'</td>'
+        +'<td><strong>'+formatPrice(u.balance||0)+'</strong></td>'
+        +'<td>'+dt+'</td>'
+        +'<td><button class="act-btn ab-ok" onclick="addBalManual(\''+d.id+'\')">💰 Bakiye Ekle</button></td>'
+        +'</tr>';
+    });
+    tb.innerHTML=html;
+  });
+}
+function addBalManual(uid){
+  var amt=parseInt(window.prompt('Eklenecek bakiye (₺):'));
+  if(!amt||amt<=0)return;
+  db.collection('users').doc(uid).get().then(function(s){
+    var cur=(s.exists?s.data().balance:0)||0;
+    return db.collection('users').doc(uid).update({balance:cur+amt});
+  }).then(function(){toast('✅ '+formatPrice(amt)+' eklendi!','success');loadUsers();});
+}
+</script>
+</body>
+</html>

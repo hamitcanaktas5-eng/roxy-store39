@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Giriş Yap - Roxy Store</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{--p:#00D9FF;--s:#A855F7;--g:#00FF88;--dark:#0A0A0F;--d2:#12121A;--d3:#1A1A28;--err:#FF6584;--warn:#FFB347;}
+body{font-family:'Poppins',sans-serif;background:var(--dark);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden;}
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;}
+.bg-g1{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,217,255,.15) 0%,transparent 70%);top:-200px;right:-100px;animation:pulse 6s ease-in-out infinite;}
+.bg-g2{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.12) 0%,transparent 70%);bottom:-150px;left:-100px;animation:pulse 8s ease-in-out infinite reverse;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+.wrap{position:relative;z-index:1;width:100%;max-width:440px;padding:20px;}
+.logo{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:32px;}
+.logo-icon{width:50px;height:50px;background:linear-gradient(135deg,var(--p),var(--s));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#0A0A0F;box-shadow:0 0 30px rgba(0,217,255,.4);}
+.logo-main{font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--p),var(--s));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo-sub{font-size:11px;font-weight:600;color:#A0A0B8;letter-spacing:2px;display:block;}
+.card{background:rgba(26,26,40,.95);border:1.5px solid rgba(0,217,255,.15);border-radius:24px;padding:36px 32px;backdrop-filter:blur(20px);box-shadow:0 24px 80px rgba(0,0,0,.5);}
+.form-block{display:none;}
+.form-block.active{display:block;}
+.form-title{font-size:22px;font-weight:800;margin-bottom:6px;}
+.form-sub{font-size:13px;color:#A0A0B8;margin-bottom:28px;}
+.inp-group{position:relative;margin-bottom:16px;}
+.inp-group i.ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#A0A0B8;font-size:15px;pointer-events:none;}
+.inp-group input{width:100%;padding:14px 14px 14px 42px;background:var(--d2);border:1.5px solid rgba(255,255,255,.07);border-radius:12px;color:#fff;font-family:'Poppins',sans-serif;font-size:14px;outline:none;transition:border .2s;}
+.inp-group input:focus{border-color:var(--p);}
+.inp-group .toggle-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:#A0A0B8;cursor:pointer;font-size:15px;padding:4px;}
+.inp-group .toggle-eye:hover{color:var(--p);}
+.form-options{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:13px;}
+.chk-label{display:flex;align-items:center;gap:8px;cursor:pointer;color:#A0A0B8;}
+.chk-label input{accent-color:var(--p);}
+.txt-link{background:transparent;border:none;color:var(--p);cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;}
+.txt-link:hover{text-decoration:underline;}
+.btn-submit{width:100%;padding:16px;background:linear-gradient(135deg,var(--p),var(--s));border:none;border-radius:13px;color:#0A0A0F;font-family:'Poppins',sans-serif;font-weight:800;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s;margin-bottom:20px;}
+.btn-submit:hover{opacity:.9;transform:translateY(-1px);}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.form-foot{text-align:center;font-size:13px;color:#A0A0B8;}
+.err-box{background:rgba(255,101,132,.1);border:1.5px solid rgba(255,101,132,.3);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--err);margin-bottom:14px;display:none;}
+.err-box.show{display:block;}
+.ok-box{background:rgba(0,255,136,.1);border:1.5px solid rgba(0,255,136,.3);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--g);margin-bottom:14px;display:none;}
+.ok-box.show{display:block;}
+/* Şifre güç */
+.pw-reqs{background:rgba(255,255,255,.04);border-radius:10px;padding:12px 14px;margin-top:6px;display:none;}
+.pw-reqs.show{display:block;}
+.req{display:flex;align-items:center;gap:8px;font-size:12px;color:#A0A0B8;margin-bottom:4px;transition:color .2s;}
+.req.ok{color:var(--g);}
+.req.ok i::before{content:"\f058";}
+.back-home{position:fixed;top:20px;left:20px;display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(26,26,40,.9);border:1.5px solid rgba(0,217,255,.2);border-radius:12px;color:#A0A0B8;text-decoration:none;font-size:13px;font-weight:600;transition:.2s;z-index:10;}
+.back-home:hover{color:var(--p);border-color:var(--p);}
+.sup-btns{display:flex;gap:10px;justify-content:center;margin-top:16px;}
+.sup-btn{display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;color:#fff;}
+.sup-btn.wa{background:#25D366;}.sup-btn.tg{background:#0088CC;}
+/* Toast */
+#_toast_wrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;}
+</style>
+</head>
+<body>
+<div class="bg"><div class="bg-g1"></div><div class="bg-g2"></div></div>
+<div id="_toast_wrap"></div>
+
+<a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i> Ana Sayfa</a>
+
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+    <div><span class="logo-main">ROXY</span><span class="logo-sub">STORE</span></div>
+  </div>
+
+  <div class="card">
+
+    <!-- GİRİŞ -->
+    <div class="form-block active" id="loginForm">
+      <div class="form-title">Giriş Yap</div>
+      <div class="form-sub">Hesabınıza erişmek için giriş yapın</div>
+      <div class="err-box" id="loginErr"></div>
+      <form onsubmit="handleLogin(event)">
+        <div class="inp-group"><i class="fas fa-envelope ico"></i><input type="email" id="loginEmail" placeholder="E-posta adresiniz" required></div>
+        <div class="inp-group"><i class="fas fa-lock ico"></i><input type="password" id="loginPassword" placeholder="Şifreniz" required><button type="button" class="toggle-eye" onclick="toggleEye('loginPassword',this)"><i class="fas fa-eye"></i></button></div>
+        <div class="form-options">
+          <label class="chk-label"><input type="checkbox" id="rememberMe"> Beni hatırla</label>
+          <button type="button" class="txt-link" onclick="switchForm('forgot')">Şifremi unuttum</button>
+        </div>
+        <button type="submit" class="btn-submit" id="loginBtn"><span>Giriş Yap</span><i class="fas fa-arrow-right"></i></button>
+      </form>
+      <div class="form-foot">Hesabınız yok mu? <button class="txt-link" onclick="switchForm('register')">Kayıt olun</button></div>
+    </div>
+
+    <!-- KAYIT -->
+    <div class="form-block" id="registerForm">
+      <div class="form-title">Hesap Oluştur</div>
+      <div class="form-sub">Ücretsiz hesap açın</div>
+      <div class="err-box" id="registerErr"></div>
+      <form onsubmit="handleRegister(event)">
+        <div class="inp-group"><i class="fas fa-user ico"></i><input type="text" id="regName" placeholder="Ad Soyad" required></div>
+        <div class="inp-group"><i class="fas fa-envelope ico"></i><input type="email" id="regEmail" placeholder="E-posta adresiniz" required></div>
+        <div class="inp-group"><i class="fas fa-lock ico"></i><input type="password" id="regPw" placeholder="Şifre (en az 8 karakter)" required oninput="checkPwStrength(this.value)"><button type="button" class="toggle-eye" onclick="toggleEye('regPw',this)"><i class="fas fa-eye"></i></button></div>
+        <div class="pw-reqs" id="pwReqs">
+          <div class="req" id="req-len"><i class="fas fa-times-circle"></i> En az 8 karakter</div>
+          <div class="req" id="req-up"><i class="fas fa-times-circle"></i> Büyük harf (A-Z)</div>
+          <div class="req" id="req-lo"><i class="fas fa-times-circle"></i> Küçük harf (a-z)</div>
+          <div class="req" id="req-num"><i class="fas fa-times-circle"></i> Rakam (0-9)</div>
+        </div>
+        <div class="inp-group" style="margin-top:12px"><i class="fas fa-lock ico"></i><input type="password" id="regPwConfirm" placeholder="Şifre tekrar" required><button type="button" class="toggle-eye" onclick="toggleEye('regPwConfirm',this)"><i class="fas fa-eye"></i></button></div>
+        <button type="submit" class="btn-submit" id="registerBtn" style="margin-top:20px"><span>Hesap Oluştur</span><i class="fas fa-arrow-right"></i></button>
+      </form>
+      <div class="form-foot">Hesabınız var mı? <button class="txt-link" onclick="switchForm('login')">Giriş yapın</button></div>
+    </div>
+
+    <!-- ŞİFRE UNUTTUM -->
+    <div class="form-block" id="forgotForm">
+      <div class="form-title">Şifre Sıfırla</div>
+      <div class="form-sub">E-postanıza sıfırlama bağlantısı göndereceğiz</div>
+      <div class="err-box" id="forgotErr"></div>
+      <div class="ok-box" id="forgotOk">✅ Sıfırlama bağlantısı gönderildi! Spam klasörünü de kontrol edin.</div>
+      <form onsubmit="handleForgot(event)">
+        <div class="inp-group"><i class="fas fa-envelope ico"></i><input type="email" id="forgotEmail" placeholder="Kayıtlı e-posta adresiniz" required></div>
+        <button type="submit" class="btn-submit"><span>Bağlantı Gönder</span><i class="fas fa-paper-plane"></i></button>
+      </form>
+      <div class="form-foot"><button class="txt-link" onclick="switchForm('login')">← Giriş sayfasına dön</button></div>
+      <div style="text-align:center;margin-top:20px;font-size:13px;color:#A0A0B8;">Sorun mu var?</div>
+      <div class="sup-btns">
+        <a href="https://wa.me/447795203704" target="_blank" class="sup-btn wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <a href="https://t.me/roxysatici" target="_blank" class="sup-btn tg"><i class="fab fa-telegram"></i> Telegram</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+// ── FIREBASE ──────────────────────────────────────
+var _fbApp = firebase.apps.length ? firebase.apps[0] : firebase.initializeApp({
+  apiKey:"AIzaSyBf2A1GhEzruI_6lfCNbq4MsbU8hxFjoqI",
+  authDomain:"roxy-store-67c53.firebaseapp.com",
+  projectId:"roxy-store-67c53",
+  storageBucket:"roxy-store-67c53.firebasestorage.app",
+  messagingSenderId:"450502544206",
+  appId:"1:450502544206:web:502d0200dc35ecacfc2c1f"
+});
+var auth = firebase.auth();
+var db   = firebase.firestore();
+
+// Zaten giriş yapılmışsa dashboard'a git
+var _authUnsub = auth.onAuthStateChanged(function(user){
+  _authUnsub();
+  if(user) window.location.href = 'dashboard.html';
+});
+
+// ── TOAST ──────────────────────────────────────────
+function toast(msg, type){
+  var colors={success:'#00FF88',error:'#FF6584',warning:'#FFB347',info:'#00D9FF'};
+  var icons={success:'check-circle',error:'times-circle',warning:'exclamation-triangle',info:'info-circle'};
+  var t=document.createElement('div');
+  t.style.cssText='display:flex;align-items:center;gap:12px;padding:14px 18px;background:#1F1F2E;border:1.5px solid '+(colors[type]||colors.info)+';border-radius:14px;font-family:Poppins,sans-serif;font-size:14px;color:#fff;box-shadow:0 8px 32px rgba(0,0,0,.5);min-width:260px;';
+  t.innerHTML='<i class="fas fa-'+(icons[type]||'info-circle')+'" style="color:'+(colors[type]||colors.info)+';font-size:18px;flex-shrink:0"></i><span>'+msg+'</span>';
+  document.getElementById('_toast_wrap').appendChild(t);
+  setTimeout(function(){t.style.transition='.3s';t.style.opacity='0';t.style.transform='translateY(8px)';setTimeout(function(){t.remove();},300);},3500);
+}
+
+// ── YARDIMCILAR ────────────────────────────────────
+function switchForm(name){
+  document.querySelectorAll('.form-block').forEach(function(el){el.classList.remove('active');});
+  document.getElementById(name+'Form').classList.add('active');
+  clearErrors();
+}
+function clearErrors(){
+  document.querySelectorAll('.err-box').forEach(function(el){el.classList.remove('show');});
+  document.querySelectorAll('.ok-box').forEach(function(el){el.classList.remove('show');});
+}
+function showErr(id, msg){ var el=document.getElementById(id); el.textContent=msg; el.classList.add('show'); }
+function toggleEye(inputId, btn){
+  var inp=document.getElementById(inputId);
+  var showing = inp.type==='text';
+  inp.type = showing ? 'password' : 'text';
+  btn.innerHTML = '<i class="fas fa-'+(showing?'eye':'eye-slash')+'"></i>';
+}
+
+// ── ŞİFRE KONTROL ──────────────────────────────────
+function checkPwStrength(val){
+  var reqs = document.getElementById('pwReqs');
+  reqs.classList.add('show');
+  var checks = {
+    'req-len': val.length >= 8,
+    'req-up':  /[A-Z]/.test(val),
+    'req-lo':  /[a-z]/.test(val),
+    'req-num': /[0-9]/.test(val)
+  };
+  Object.keys(checks).forEach(function(id){
+    var el=document.getElementById(id);
+    if(checks[id]){ el.classList.add('ok'); }
+    else{ el.classList.remove('ok'); }
+  });
+}
+function pwValid(val){
+  return val.length>=8 && /[A-Z]/.test(val) && /[a-z]/.test(val) && /[0-9]/.test(val);
+}
+
+// ── GİRİŞ ─────────────────────────────────────────
+function handleLogin(event){
+  event.preventDefault();
+  var email = document.getElementById('loginEmail').value.trim();
+  var pw    = document.getElementById('loginPassword').value;
+  var btn   = document.getElementById('loginBtn');
+  clearErrors();
+  if(!email || !pw){ showErr('loginErr','Lütfen tüm alanları doldurun.'); return; }
+  btn.disabled=true; btn.querySelector('span').textContent='Giriş yapılıyor...';
+  auth.signInWithEmailAndPassword(email, pw)
+    .then(function(){ window.location.href='dashboard.html'; })
+    .catch(function(e){
+      btn.disabled=false; btn.querySelector('span').textContent='Giriş Yap';
+      var msg = e.code==='auth/user-not-found'?'Bu e-posta kayıtlı değil.'
+              : e.code==='auth/wrong-password'?'Şifre hatalı.'
+              : e.code==='auth/invalid-email'?'Geçersiz e-posta.'
+              : e.code==='auth/too-many-requests'?'Çok fazla deneme. Lütfen bekleyin.'
+              : 'Giriş başarısız: '+e.message;
+      showErr('loginErr', '❌ '+msg);
+    });
+}
+
+// ── KAYIT ─────────────────────────────────────────
+function handleRegister(event){
+  event.preventDefault();
+  var name  = document.getElementById('regName').value.trim();
+  var email = document.getElementById('regEmail').value.trim();
+  var pw    = document.getElementById('regPw').value;
+  var pw2   = document.getElementById('regPwConfirm').value;
+  var btn   = document.getElementById('registerBtn');
+  clearErrors();
+  if(!name || !email || !pw || !pw2){ showErr('registerErr','Lütfen tüm alanları doldurun.'); return; }
+  if(!pwValid(pw)){ showErr('registerErr','Şifre gereksinimleri karşılanmıyor.'); return; }
+  if(pw !== pw2){ showErr('registerErr','Şifreler eşleşmiyor.'); return; }
+  btn.disabled=true; btn.querySelector('span').textContent='Hesap oluşturuluyor...';
+  auth.createUserWithEmailAndPassword(email, pw)
+    .then(function(cred){
+      return db.collection('users').doc(cred.user.uid).set({
+        name: name,
+        email: email,
+        balance: 0,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function(){ return cred.user.updateProfile({displayName: name}); });
+    })
+    .then(function(){ window.location.href='dashboard.html'; })
+    .catch(function(e){
+      btn.disabled=false; btn.querySelector('span').textContent='Hesap Oluştur';
+      var msg = e.code==='auth/email-already-in-use'?'Bu e-posta zaten kullanımda.'
+              : e.code==='auth/weak-password'?'Şifre çok zayıf.'
+              : 'Kayıt başarısız: '+e.message;
+      showErr('registerErr','❌ '+msg);
+    });
+}
+
+// ── ŞİFRE UNUTTUM ──────────────────────────────────
+function handleForgot(event){
+  event.preventDefault();
+  var email = document.getElementById('forgotEmail').value.trim();
+  clearErrors();
+  if(!email){ showErr('forgotErr','E-posta adresinizi girin.'); return; }
+  auth.sendPasswordResetEmail(email)
+    .then(function(){ document.getElementById('forgotOk').classList.add('show'); })
+    .catch(function(e){
+      var msg = e.code==='auth/user-not-found'?'Bu e-posta kayıtlı değil.'
+              : 'Hata: '+e.message;
+      showErr('forgotErr','❌ '+msg);
+    });
+}
+</script>
+</body>
+</html>
